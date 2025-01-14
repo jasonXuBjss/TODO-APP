@@ -6,11 +6,17 @@ import (
 )
 
 type Todo struct {
-	Title     string
-	Completed bool
+	Title     string `json: "title"`
+	Completed bool   `json: "completed"`
 }
 
 type Todos []Todo
+
+var todos = Todos{
+	{Title: "learn some go", Completed: true},
+	{Title: "build an api", Completed: false},
+	{Title: "testing the app", Completed: false},
+}
 
 
 func (todos *Todos) Add(title string) {

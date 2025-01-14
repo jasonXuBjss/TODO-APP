@@ -1,27 +1,25 @@
 package main
 
-import "fmt"
-
+import (
+	"fmt"
+	"log"
+	"net/http"
+)
 
 func main() {
-	todos := Todos{}
+	mux := http.NewServeMux()
 
-	todos.Add("buy stuff")
-	todos.Add("buy more stuff")
-	todos.Add("learn go with test")
+	mux.HandleFunc("/todos", getTodosHandler)              // GET /todos 
+	// mux.HandleFunc("/todos", addTodoHandler)                // POST /todos 
+	// mux.HandleFunc("/todos/", updateTodoHandler)            // PUT /todos/{id} 
+	// mux.HandleFunc("/todos/", deleteTodoHandler)    		//DEL /todos/{id}
 
 
-	fmt.Printf("%+v\n\n", todos)
-
-	todos.Delete(2)
-	fmt.Printf("%+v\n\n", todos)
-
-	todos.Update(1, "learn more go")
-	fmt.Printf("%+v\n\n", todos)
-
-	todos.Toggle(1)
-	fmt.Printf("%+v\n\n", todos)
+	fmt.Println("up n running on 8080")
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
+
+
 
 
 

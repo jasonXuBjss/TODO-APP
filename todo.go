@@ -1,84 +1,75 @@
 package main
 
 import (
-	"errors"
+
 	"fmt"
 )
 
 type Todo struct {
-	Title     string `json: "title"`
-	Completed bool   `json: "completed"`
+	ID			int		`json:"id"`
+	Title		string	`json:"title"`
+	Completed	bool	`json:"completed"`
 }
 
 type Todos []Todo
 
 var todos = Todos{
-	{Title: "learn some go", Completed: true},
-	{Title: "build an api", Completed: false},
-	{Title: "testing the app", Completed: false},
+	{ID: 1, Title: "learn some go", Completed: true},
+	{ID: 2,Title: "build an api", Completed: false},
+	{ID: 3,Title: "testing the app", Completed: false},
 }
-
+var newId = len(todos) + 1
 
 func (todos *Todos) Add(title string) {
 	todo := Todo{
+		ID: newId,
 		Title:     title,
 		Completed: false,
 	}
-
+	newId++
 	*todos = append(*todos, todo)
+	fmt.Println("new to-do added.")
 }
 
-func (todos *Todos) validateIndex(i int) error {
-	if i >= len(*todos) || i < 0 {
-		err := errors.New("invalid index")
-		fmt.Println(err)
-		return err
+func (todos *Todos) Delete(id int) error {
+	for i := range *todos {
+		if (*todos)[i].ID == id {
+			*todos = append((*todos)[:i], (*todos)[i+1:]...)
+			fmt.Println("to-do deleted.")
+			return nil
+		}
 	}
-
-	return nil
+	return fmt.Errorf("id %d not found", id)
 }
 
-func (todos *Todos) Delete(i int) error {
-
-	if err := todos.validateIndex(i); err != nil {
-		return err
-	} 
-
-	*todos = append((*todos)[:i], (*todos)[i+1:]... )
-		
-	return nil
+func (todos *Todos) Update(id int, title string) error {
+	for i := range *todos {
+		if (*todos)[i].ID == id {
+			(*todos)[i].Title = title
+			fmt.Println("to-do updated.")
+			return nil
+		}
+	}
+	return fmt.Errorf("id %d not found", id)
 }
 
-func (todos *Todos) Toggle(i int) error {
-
-	if err := todos.validateIndex(i); err != nil {
-		return err
-	} 
-
-	(*todos)[i].Completed =!(*todos)[i].Completed
-		
-	return nil
+func (todos *Todos) Toggle(id int) error {
+	for i := range *todos {
+		if (*todos)[i].ID == id {
+			(*todos)[i].Completed = !(*todos)[i].Completed
+			fmt.Println("to-do taggled.")
+			return nil
+		}
+	}
+	return fmt.Errorf("id %d not found", id)
 }
-
-func (todos *Todos) Update(i int, title string) error {
-
-	if err := todos.validateIndex(i); err != nil {
-		return err
-	} 
-
-		(*todos)[i].Title = title
-	
-		
-	return nil
-}
-
 
 func (todos *Todos) GetList(){
-	for i, todo := range *todos {
+	for _, todo := range *todos {
 		status := "Incomplete"
 		if todo.Completed {
 			status = "Complete"
 		}
-		fmt.Printf("ID: %d, Title: %s, Status: %s\n", i, todo.Title, status)
+		fmt.Printf("ID: %d, Title: %s, Status: %s\n", todo.ID, todo.Title, status)
 	}
 }

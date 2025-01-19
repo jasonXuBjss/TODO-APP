@@ -18,7 +18,42 @@ log.Fatal(http.ListenAndServe(":8080", nil))
 
 
 
+
+
+
+
+
+
 * Use the [context] package to add a TraceID and [slog] to enable traceability of calls through the solution.
+
+for each requests genarate a new traceid
+
+using uuid
+
+type constextKey int
+
+const TraceKey contextKey = 1
+
+func AddTrace(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w. http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		if traceID := r.Header.Get("X-Cloud-Trace-Context"); traceID != "" {
+			ctx = context.WithValue(ctx, TraceKey, traceID)
+		}
+	}
+	)
+}
+
+
+
+
+
+
+
+
+
+
 
 
 * At the ToDo level, use CSP to support concurrent reads and concurrent safe write.

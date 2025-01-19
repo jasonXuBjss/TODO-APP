@@ -6,13 +6,20 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	// "github.com/dreamsofcode-io/nethttp/monster"
+	
 )
-
-type Handler struct{}
 
 
 func getTodosHandler(w http.ResponseWriter, r *http.Request) {
+
+	uuid, ok := uuidFromContext(r.Context())
+	if !ok {
+		http.Error(w, "no uuid in context", http.StatusInternalServerError)
+		return
+	} 
+
+	fmt.Printf("UUID: %s \n", uuid)
+	
 	w.Header().Set("Content-Type", "application/json")
 
 	err := json.NewEncoder(w).Encode(todos)
@@ -20,12 +27,19 @@ func getTodosHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
 }
 
 
 func addTodoHandler(w http.ResponseWriter, r *http.Request)  {
+
+	uuid, ok := uuidFromContext(r.Context())
+	if !ok {
+		http.Error(w, "no uuid in context", http.StatusInternalServerError)
+		return
+	} 
+
+	fmt.Printf("UUID: %s \n", uuid)
+	
 	var newTodo Todo
 	err := json.NewDecoder(r.Body).Decode(&newTodo)
 	if err != nil {
@@ -42,10 +56,17 @@ func addTodoHandler(w http.ResponseWriter, r *http.Request)  {
 
 	todos = append(todos, newTodo)
 
-	w.WriteHeader(http.StatusNoContent)
 }
 
 func deleteTodoHandler(w http.ResponseWriter, r *http.Request) {
+	uuid, ok := uuidFromContext(r.Context())
+	if !ok {
+		http.Error(w, "no uuid in context", http.StatusInternalServerError)
+		return
+	} 
+
+	fmt.Printf("UUID: %s \n", uuid)
+
 	idStr := strings.TrimPrefix(r.URL.Path, "/todos/")
 	if idStr == "" {
 		http.Error(w, "ID is required", http.StatusBadRequest)
@@ -78,6 +99,14 @@ func deleteTodoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateTodoHandler(w http.ResponseWriter, r *http.Request) {
+	uuid, ok := uuidFromContext(r.Context())
+	if !ok {
+		http.Error(w, "no uuid in context", http.StatusInternalServerError)
+		return
+	} 
+
+	fmt.Printf("UUID: %s \n", uuid)
+
 	idStr := strings.TrimPrefix(r.URL.Path, "/todos/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil || idStr == "" {
@@ -110,6 +139,14 @@ func updateTodoHandler(w http.ResponseWriter, r *http.Request) {
 
 
 func toggleTodoHandler(w http.ResponseWriter, r *http.Request) {
+	uuid, ok := uuidFromContext(r.Context())
+	if !ok {
+		http.Error(w, "no uuid in context", http.StatusInternalServerError)
+		return
+	} 
+
+	fmt.Printf("UUID: %s \n", uuid)
+
 	idStr := strings.TrimPrefix(r.URL.Path, "/todos/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil || idStr == "" {

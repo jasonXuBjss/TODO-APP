@@ -7,10 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-//attach the uuid to context
-//get the uuid from the context by using the key
-//middleware ensure every req there is a uuid in that context
-
 type uuidKey int
 
 const key uuidKey = 1
@@ -38,21 +34,3 @@ func Middleware(h http.Handler) http.Handler {
         h.ServeHTTP(w, r)
     })
 }
-
-// type Logger struct {}
-
-// func (Logger) Log(ctx context.Context, message string) {
-//     if uuid, ok := uuidFromContext(ctx); ok {
-//         message = fmt.Sprintf("UUID: %s - %s", uuid, message)
-//     }
-//     // do logging
-//     fmt.Println(message)
-// }
-
-// func Request(req *http.Request) *http.Request {
-//     ctx := req.Context()
-//     if uuid, ok := uuidFromContext(ctx); ok {
-//         req.Header.Add("X-UUID", uuid)
-//     }
-//     return req
-// }

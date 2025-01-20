@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	
-	
 )
 
 func main() {
@@ -21,6 +19,8 @@ func main() {
 	
 	fmt.Println("up n running on 8080")
 	log.Fatal(http.ListenAndServe(":8080", Middleware(mux)))
+
+
 
 }
 

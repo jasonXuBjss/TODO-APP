@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
-	
 )
 
 
@@ -18,7 +18,10 @@ func getTodosHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	} 
 
-	fmt.Printf("UUID: %s \n", uuid)
+	slog.Info("GET /todos",
+	slog.String("uuid", uuid),
+	slog.String("method", r.Method),
+)
 	
 	w.Header().Set("Content-Type", "application/json")
 
@@ -38,7 +41,10 @@ func addTodoHandler(w http.ResponseWriter, r *http.Request)  {
 		return
 	} 
 
-	fmt.Printf("UUID: %s \n", uuid)
+	slog.Info("POST /todos",
+	slog.String("uuid", uuid),
+	slog.String("method", r.Method),
+)
 	
 	var newTodo Todo
 	err := json.NewDecoder(r.Body).Decode(&newTodo)
@@ -65,7 +71,11 @@ func deleteTodoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	} 
 
-	fmt.Printf("UUID: %s \n", uuid)
+	slog.Info("DELETE /todos/{id}",
+	slog.String("uuid", uuid),
+	slog.String("method", r.Method),
+)
+
 
 	idStr := strings.TrimPrefix(r.URL.Path, "/todos/")
 	if idStr == "" {
@@ -105,7 +115,10 @@ func updateTodoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	} 
 
-	fmt.Printf("UUID: %s \n", uuid)
+	slog.Info("PUT /todos/{id}",
+	slog.String("uuid", uuid),
+	slog.String("method", r.Method),
+	)
 
 	idStr := strings.TrimPrefix(r.URL.Path, "/todos/")
 	id, err := strconv.Atoi(idStr)
@@ -145,7 +158,10 @@ func toggleTodoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	} 
 
-	fmt.Printf("UUID: %s \n", uuid)
+	slog.Info("PATCH /todos/{id}",
+	slog.String("uuid", uuid),
+	slog.String("method", r.Method),
+	)
 
 	idStr := strings.TrimPrefix(r.URL.Path, "/todos/")
 	id, err := strconv.Atoi(idStr)

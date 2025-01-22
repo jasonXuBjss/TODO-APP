@@ -1,23 +1,12 @@
 package main
 
 import (
-
 	"fmt"
 )
 
-type Todo struct {
-	ID			int		`json:"id"`
-	Title		string	`json:"title"`
-	Completed	bool	`json:"completed"`
-}
-
 type Todos []Todo
 
-var todos = Todos{
-	{ID: 1, Title: "learn some go", Completed: true},
-	{ID: 2,Title: "build an api", Completed: false},
-	{ID: 3,Title: "testing the app", Completed: false},
-}
+var todos = Todos{}
 var newId = len(todos) + 1
 
 func (todos *Todos) Add(title string) {

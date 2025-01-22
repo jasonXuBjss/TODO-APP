@@ -22,13 +22,16 @@ func getTodosHandler(w http.ResponseWriter, r *http.Request) {
 	slog.String("uuid", uuid),
 	slog.String("method", r.Method),
 )
+	todos, err := storage.Load()
+	if err != nil {
+		http.Error(w, "failed to load todos", http.StatusInternalServerError)
+		return
+	}
 	
 	w.Header().Set("Content-Type", "application/json")
 
-	err := json.NewEncoder(w).Encode(todos)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if err := json.NewEncoder(w).Encode(todos); err != nil {
+		http.Error(w, "failed to encode todos", http.StatusInternalServerError)
 	}
 }
 
@@ -57,10 +60,21 @@ func addTodoHandler(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	newTodo.ID = newId
-	newId++
+	todos, err := storage.Load() 
+	if err != nil {
+		http.Error(w, "failed to load todos", http.StatusInternalServerError)
+		return
+	}
 
+	newTodo.ID = len(todos) + 1
 	todos = append(todos, newTodo)
+
+	if err := storage.Save(todos); err != nil {
+		http.Error(w, "failed to save todos", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 
 }
 
@@ -78,14 +92,15 @@ func deleteTodoHandler(w http.ResponseWriter, r *http.Request) {
 
 
 	idStr := strings.TrimPrefix(r.URL.Path, "/todos/")
-	if idStr == "" {
-		http.Error(w, "ID is required", http.StatusBadRequest)
+	id, err := strconv.Atoi(idStr)
+	if err != nil || idStr == "" {
+		http.Error(w, "invalid ID", http.StatusBadRequest)
 		return
 	}
 
-	id, err := strconv.Atoi(idStr)
+	todos, err := storage.Load() 
 	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		http.Error(w, "failed to load todos", http.StatusInternalServerError)
 		return
 	}
 
@@ -103,6 +118,11 @@ func deleteTodoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	todos = append(todos[:indexToDelete], todos[indexToDelete+1:]...)
+
+	if err := storage.Save(todos); err != nil {
+		http.Error(w, "failed to save todos", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 
@@ -123,25 +143,35 @@ func updateTodoHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/todos/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil || idStr == "" {
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		http.Error(w, "invalid ID", http.StatusBadRequest)
 		return
 	}
 
 	var updatedTodo Todo
 	err = json.NewDecoder(r.Body).Decode(&updatedTodo)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if updatedTodo.Title == "" {
-		http.Error(w, "Title is required", http.StatusBadRequest)
+		http.Error(w, "title is required", http.StatusBadRequest)
+		return
+	}
+	
+	todos, err := storage.Load() 
+	if err != nil {
+		http.Error(w, "failed to load todos", http.StatusInternalServerError)
 		return
 	}
 
 	for i := range todos {
 		if todos[i].ID == id {
 			todos[i].Title = updatedTodo.Title
+			if err := storage.Save(todos); err != nil {
+				http.Error(w, "failed to save todos", http.StatusInternalServerError)
+				return
+			}
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
@@ -166,13 +196,23 @@ func toggleTodoHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/todos/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil || idStr == "" {
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		http.Error(w, "invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	todos, err := storage.Load() 
+	if err != nil {
+		http.Error(w, "failed to load todos", http.StatusInternalServerError)
 		return
 	}
 
 	for i := range todos {
 		if todos[i].ID == id {
 			todos[i].Completed = !todos[i].Completed
+			if err := storage.Save(todos); err != nil {
+				http.Error(w, "Failed to save todos", http.StatusInternalServerError)
+				return
+			}
 			w.WriteHeader(http.StatusNoContent) 
 			return
 		}

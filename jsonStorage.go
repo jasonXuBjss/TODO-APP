@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
 )
 
 type Storage interface {
@@ -13,9 +14,13 @@ type Storage interface {
 
 type JSONStorage struct {
 	FileName string
+	mu sync.Mutex
 }
 
 func (s *JSONStorage) Save(todos []Todo) error {
+	s.mu.Lock()         
+	defer s.mu.Unlock()
+
 	fileData, err := json.MarshalIndent(todos, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal todos: %s", err)
@@ -30,6 +35,9 @@ func (s *JSONStorage) Save(todos []Todo) error {
 }
 
 func (s *JSONStorage) Load() ([]Todo, error) {
+	s.mu.Lock()         
+	defer s.mu.Unlock()
+	
 	fileData, err := os.ReadFile(s.FileName)
 	if err != nil {
 		if os.IsNotExist(err) {

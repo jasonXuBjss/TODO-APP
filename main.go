@@ -24,7 +24,6 @@ func main() {
 
 	if todos, err := storage.Load(); err == nil {
 		fmt.Printf("Loaded %d todos from storage.\n", len(todos))
-		// storage.Save(todos) 
 	} else {
 		fmt.Println("No todos loaded or error:", err)
 	}

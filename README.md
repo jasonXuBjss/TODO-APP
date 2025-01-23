@@ -39,7 +39,7 @@ go run . -store=json -file=todos.json
 ```bash
 go run . -store=memory
 ```
-
+---
 ### Project Stucture
 ```bash
 todo-app/
@@ -54,7 +54,7 @@ todo-app/
 ├── go.mod           # Go module file
 └── go.sum           # Dependency checksums
 ```
-
+---
 ### API Endpoints
 
 | Method | Endpoint        | Description                     |
